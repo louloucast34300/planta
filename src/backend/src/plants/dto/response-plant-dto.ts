@@ -1,3 +1,6 @@
+
+// import * as ResPlantDto from './dto/response-plant-dto.js';
+
 import { z } from 'zod'
 import { Plant } from '../plants.entity.js'
 
@@ -14,9 +17,9 @@ export const ResponsePlantSchema = z.object({
   updatedAt: z.date(),
 })
 
-export type ResponsePlantDto = z.infer<typeof ResponsePlantSchema>
+export type ResponseType = z.infer<typeof ResponsePlantSchema>
 
-export function toPlantResponse(plant: Plant): ResponsePlantDto {
+export function parsed (plant: Plant): ResponseType {
   return {
     id: plant.id,
     name: plant.name,
