@@ -1,0 +1,89 @@
+
+services: 
+
+
+  frontend:   
+    build:
+        context: .
+        dockerfile: ./docker/Dockerfile.frontend
+    container_name: 'plant-front'
+    restart: unless-stopped
+    entrypoint: 'sh -c "npm install && npm run dev"'
+    volumes:
+      - ./src/frontend:/home/node/app
+    ports:
+        - 3000:3000 
+    networks:
+      - plant-net
+    
+  database: 
+    image: postgres:15 
+    hostname: monstera_db 
+    container_name: plant_db 
+    restart: always 
+    environment: 
+      POSTGRES_DB: plant 
+      POSTGRES_USER: postgres 
+      POSTGRES_PASSWORD: postgres 
+    ports: 
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./src/backend/sql:/docker-entrypoint-initdb.d
+    networks: 
+      - plant-net
+      - db-network 
+    healthcheck: 
+      test: ["CMD-SHELL", "pg_isready -U postgres -d plant"] 
+      interval: 5s 
+      timeout: 2s 
+      retries: 20 
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: plant_pgadmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@plant.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_LISTEN_PORT: 80
+    ports:
+      - '5050:80'
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - plant-net
+      - db-network
+    depends_on:
+      - database
+    
+  backend: 
+    build: 
+      context: .
+      dockerfile: ./docker/Dockerfile.backend
+    container_name: plant_back
+    env_file:
+      - ./src/backend/.env
+    volumes:
+      - ./src/backend:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - '5020:5000'
+    stdin_open: true 
+    tty: true  
+    depends_on: 
+      database: 
+        condition: service_healthy 
+    networks: 
+      - plant-net
+      - db-network 
+
+volumes:
+  postgres_data:
+  pgadmin_data:
+
+networks: 
+  db-network: 
+    name: db-network 
+  plant-net:
+    driver: bridge

@@ -1,0 +1,28 @@
+{
+  // Fichiers masqués dans l'explorateur (et exclus de la recherche)
+  "files.exclude": {
+    "**/node_modules": true,
+    "**/.next": true,
+    "**/dist": true,
+    "**/*.tsbuildinfo": true,
+    "**/next-env.d.ts": true,
+
+    "**/vitest.config.ts": true,
+    "**/vitest.config.e2e.ts": true,
+    "**/tsconfig.json":true,
+    "**/tsconfig.build.json":true,
+    "**/package-lock.json":true,
+    "**/oxlint.json":true,
+    "**/nest-cli.json":true,
+    "**/.prettierrc":true,
+    "**/.gitignore":true,
+    "**/.eslint.config.mjs":true,
+    "**/eslint.config.mjs":true,
+    "**/.dockerignore":true
+  },
+
+  // Exclusions supplémentaires pour la recherche uniquement
+  "search.exclude": {
+    "**/package-lock.json": true
+  }
+}

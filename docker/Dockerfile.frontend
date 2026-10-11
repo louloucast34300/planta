@@ -1,0 +1,21 @@
+FROM node:trixie-slim
+
+RUN apt-get -y update --fix-missing && \
+    apt-get upgrade -y
+
+RUN apt-get install -y --no-install-recommends \
+    curl \
+    git \
+    nano \
+    openssl \
+    unzip \
+    wget \
+    zip \
+    zsh
+
+RUN mkdir /home/node/app
+WORKDIR /home/node/app
+RUN chown -R node:node /home/node
+USER node
+
+ENTRYPOINT ["npm", "run", "dev"]

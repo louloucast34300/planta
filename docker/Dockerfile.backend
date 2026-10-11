@@ -1,0 +1,15 @@
+FROM node:slim
+
+WORKDIR /usr/src/app
+
+# procps fournit `ps`, requis par nest --watch pour tuer l'ancien process au rechargement
+RUN apt-get update && apt-get install -y --no-install-recommends procps && rm -rf /var/lib/apt/lists/*
+
+COPY ./src/backend/package.json ./src/backend/package-lock.json ./
+RUN npm ci
+
+COPY ./src/backend ./
+
+EXPOSE 5000
+
+CMD ["npm", "run", "start:dev"]
