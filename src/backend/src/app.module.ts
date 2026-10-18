@@ -4,10 +4,13 @@ import { PlantsModule } from './plants/plants.module.js';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { Plant } from './plants/plants.entity.js'
+import { SpeciesModule } from './species/species.module.js';
+import { Specie } from './species/species.entity.js';
 
 @Module({
   imports: [
     PlantsModule,
+    SpeciesModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'plant_db',
@@ -15,7 +18,7 @@ import { Plant } from './plants/plants.entity.js'
       username: 'postgres',
       password: 'postgres',
       database: 'plant',
-      entities: [Plant],
+      entities: [Plant, Specie],
       synchronize: true,
     }),
     
