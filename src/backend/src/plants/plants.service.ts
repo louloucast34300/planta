@@ -14,24 +14,27 @@ export class PlantService {
   ){}
 
   async findAll(): Promise<Plant[]> {
-    return await this.plantRepository.find({ order: { createdAt: 'DESC' } });
+    return await this.plantRepository.find({ relations: { specie: true }, order: { createdAt: 'DESC' } });
   }
 
   async findOne(id: string): Promise<Plant> {
-    const plant = await this.plantRepository.findOneBy({ id });
+    const plant = await this.plantRepository.findOne({ where: { id }, relations: { specie: true } });
     if(!plant) throw new NotFoundException(`Plante ${id} introuvable.`)
     return plant
   }
 
   async create(plant:ReqPlantDto.CreateType):Promise<Plant> {
     const newPlant = this.plantRepository.create(plant)
-    return await this.plantRepository.save(newPlant)
+    const saved = await this.plantRepository.save(newPlant)
+    // on recharge pour récupérer l'espèce liée
+    return await this.findOne(saved.id)
   }
 
   async update(id: string, plant:ReqPlantDto.UpdateType): Promise<Plant> {
     const updated = await this.plantRepository.preload({id, ...plant})
     if(!updated) throw new NotFoundException(`Plante ${id} introuvable.`)
-    return await this.plantRepository.save(updated)
+    await this.plantRepository.save(updated)
+    return await this.findOne(id)
   }
 
   async delete(id: string): Promise<void>{

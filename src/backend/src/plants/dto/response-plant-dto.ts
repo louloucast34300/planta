@@ -3,6 +3,7 @@
 
 import { z } from 'zod'
 import { Plant } from '../plants.entity.js'
+import * as resSpecieDto from '../../species/dto/response-species-dto.js'
 
 export const ResponsePlantSchema = z.object({
   id: z.string(),
@@ -13,6 +14,7 @@ export const ResponsePlantSchema = z.object({
   images: z.object({
     featuredImage: z.string().nullable(),
   }),
+  specie: resSpecieDto.ResponseSpecieSchema.nullable(),
   createdAt: z.date(),
   updatedAt: z.date(),
 })
@@ -29,6 +31,7 @@ export function parsed (plant: Plant): ResponseType {
     images: {
       featuredImage: plant.featuredImage,
     },
+    specie: plant.specie ? resSpecieDto.parsed(plant.specie) : null,
     createdAt: plant.createdAt,
     updatedAt: plant.updatedAt,
   }

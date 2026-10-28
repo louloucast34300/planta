@@ -10,6 +10,7 @@ import { SpecieService } from './species.service.js'
     imports:[TypeOrmModule.forFeature([Specie])],
     controllers:[SpecieController],
     providers: [SpecieService],
+    exports: [SpecieService]
 })
 
 export class SpeciesModule {

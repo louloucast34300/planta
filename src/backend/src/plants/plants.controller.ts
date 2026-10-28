@@ -5,13 +5,15 @@ import * as ResPlantDto from './dto/response-plant-dto.js';
 
 @Controller('plants')
 export class PlantsController {
-    constructor(private plantService: PlantService){}
+    constructor(
+        private plantService: PlantService
+    ){}
 
     @Get('/')
         async findAll(): 
             Promise<ResPlantDto.ResponseType[]> {
             const plants = await this.plantService.findAll()
-            return plants.map(ResPlantDto.parsed);
+            return plants.map(plant => ResPlantDto.parsed(plant))
             }
 
     @Get('/:id')

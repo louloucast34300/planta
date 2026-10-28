@@ -2,8 +2,6 @@ import { z } from 'zod'
 import { Specie } from '../species.entity.js'
 
 
-
-
 export const ResponseSpecieSchema = z.object({
     id: z.string(),
     name: z.string(),
@@ -19,3 +17,4 @@ export function parsed (specie: Specie): ResponseType {
         description: specie.description
     }
 }
+

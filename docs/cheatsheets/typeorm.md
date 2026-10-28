@@ -107,6 +107,55 @@ await repo.delete({ id })      // directement par critère (DeleteResult)
 | Hooks, cascades | oui | non |
 | Performance | moins rapide | plus rapide |
 
+## Relations
+
+### `@ManyToOne` / `@OneToMany` (plusieurs posts → un user)
+
+```ts
+import { Entity, Column, ManyToOne, OneToMany, JoinColumn } from 'typeorm'
+import { User } from '../users/user.entity.js'
+
+@Entity()
+export class Post {
+  // côté "many" : c'est lui qui porte la clé étrangère en base
+  @ManyToOne(() => User, (user) => user.posts, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'userId' })     // nom de la colonne FK ; référence par défaut la clé primaire de User
+  user: User | null
+
+  @Column({ type: 'uuid', nullable: true })   // même colonne exposée : lire/écrire l'id sans charger User
+  userId: string | null
+}
+
+@Entity()
+export class User {
+  @OneToMany(() => Post, (post) => post.user)  // optionnel, aucune colonne en base
+  posts: Post[]
+}
+```
+
+- La cible de la FK vient de `() => User` : TypeORM pointe sur sa `@PrimaryColumn`/`@PrimaryGeneratedColumn`.
+- Pour viser une autre colonne : `@JoinColumn({ name: 'userEmail', referencedColumnName: 'email' })`.
+- `@JoinColumn` est optionnel sur `@ManyToOne` (nom auto `userId`), mais il le rend explicite.
+- `@Column` + `@JoinColumn` avec le même `name` = une seule colonne en base, deux façons d'y accéder.
+
+### `onDelete` (quand la ligne référencée est supprimée)
+
+| Valeur | Effet sur les posts quand le user est supprimé |
+|---|---|
+| `'RESTRICT'` / `'NO ACTION'` (défaut) | suppression refusée tant qu'il reste des posts |
+| `'CASCADE'` | les posts sont supprimés aussi |
+| `'SET NULL'` | `userId` passe à `null` (colonne `nullable` obligatoire) |
+
+### Charger une relation
+
+```ts
+await repo.find({ relations: { user: true } })            // jointure, post.user rempli
+await repo.findOne({ where: { id }, relations: { user: true } })
+await repo.save(repo.create({ title, userId }))           // écrire via l'id seul
+```
+
+Sans `relations`, `post.user` vaut `undefined` (mais `post.userId` est toujours là).
+
 ## Notes perso
 
-<!-- Relations, QueryBuilder, transactions, migrations… à ajouter au fil du projet -->
+<!-- QueryBuilder, transactions, migrations… à ajouter au fil du projet -->
